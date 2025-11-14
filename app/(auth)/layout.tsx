@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 import Image from "next/image";
+import { Toaster } from "@/components/ui/sonner";
+
 const Layout = ({ children }: { children: ReactNode }) => {
   return (
     <main className="auth-container">
@@ -22,6 +24,7 @@ const Layout = ({ children }: { children: ReactNode }) => {
           className="size-full object-cover"
         />
       </section>
+      <Toaster />
     </main>
   );
 };
