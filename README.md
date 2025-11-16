@@ -60,7 +60,6 @@ Bibliotrack is a production-grade University Library Management System built wit
 
 1. Clone the repository:
    git clone https://github.com/EyaKam/bibliotrack.git
-   cd bibliotrack
 
 2. Install dependencies:
    npm install
@@ -79,12 +78,12 @@ Bibliotrack is a production-grade University Library Management System built wit
 
 ## Project Structure
 
-app/ # Next.js app router pages and layouts  
-components/ # Reusable UI components  
-database/ # Drizzle ORM schema and config  
-lib/ # Helper functions, validations, actions  
-migrations/ # Database migrations  
-public/ # Static assets
+app/ Next.js app router pages and layouts  
+components/ Reusable UI components  
+database/ Drizzle ORM schema and config  
+lib/ Helper functions, validations, actions  
+migrations/ Database migrations  
+public/ Static assets
 
 ---
 
