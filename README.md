@@ -47,43 +47,18 @@ Bibliotrack is a production-grade University Library Management System built wit
 
 ---
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js v20+
-- PostgreSQL
-- Redis
-- Git
-
-### Installation
-
-1. Clone the repository:
-   git clone https://github.com/EyaKam/bibliotrack.git
-
-2. Install dependencies:
-   npm install
-
-3. Create `.env.local` and add required environment variables
-
-4. Run database migrations:
-   npm run migrate
-
-5. Start the development server:
-   npm run dev
-
-6. Open your browser at [http://localhost:3000](http://localhost:3000)
-
----
-
 ## Project Structure
 
-app/ Next.js app router pages and layouts  
-components/ Reusable UI components  
-database/ Drizzle ORM schema and config  
-lib/ Helper functions, validations, actions  
-migrations/ Database migrations  
-public/ Static assets
+The project follows a modular Next.js App Router structure with separate directories for authentication, reusable components, database logic, and migrations, making it easy to maintain and scale.
+
+app/ # Next.js App Router pages and layouts
+(auth)/ # Authentication-related pages (login, signup)
+(root)/ # Root-level pages (homepage, dashboard)
+components/ # Reusable UI components
+database/ # Drizzle ORM schema and database configuration
+lib/ # Helper functions, validations, and actions
+migrations/ # Database migration files
+public/ # Static assets (images, icons, etc.)
 
 ---
 
