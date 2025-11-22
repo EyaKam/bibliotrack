@@ -27,7 +27,7 @@ export const sendEmail = async ({
       provider: resend({ token: config.env.resendToken }),
     },
     body: {
-      from: "Bibliotrack <hello.bibliotrack-project.site>",
+      from: "Bibliotrack <contact@bibliotrack-project.site>",
       to: [email],
       subject,
       html: message,
