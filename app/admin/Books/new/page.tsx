@@ -1,4 +1,4 @@
-import BookForm from "@/components/admin/forms/bookForm";
+import BookForm from "@/components/admin/forms/BookForm";
 import { Button } from "@/components/ui/button";
 import { Book, Link } from "lucide-react";
 import React from "react";

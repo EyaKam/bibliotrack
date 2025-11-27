@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { text } from "stream/consumers";
 import { set } from "zod";
 import { pl } from "zod/v4/locales";
+import { cn } from "@/lib/utils";
 const {
   env: {
     imageKit: { publicKey, urlEndpoint },
@@ -78,20 +79,16 @@ const FileUpload = ({
   const onValidate = (file: File) => {
     if (type === "image") {
       if (file.size > 20 * 1024 * 1024) {
-        toast({
-          title: "File size too large",
+        toast("File size too large", {
           description: "Please upload a file that is less than 20MB in size",
-          variant: "destructive",
         });
 
         return false;
       }
     } else if (type === "video") {
       if (file.size > 50 * 1024 * 1024) {
-        toast({
-          title: "File size too large",
+        toast("File size too large", {
           description: "Please upload a file that is less than 50MB in size",
-          variant: "destructive",
         });
         return false;
       }
@@ -108,7 +105,7 @@ const FileUpload = ({
     >
       <IKUpload
         ref={ikUploadRef}
-        onError={onError}
+        onError={onerror}
         onSuccess={onSuccess}
         useUniqueFileName={true}
         validateFile={onValidate}
@@ -160,14 +157,14 @@ const FileUpload = ({
       {file &&
         (type === "image" ? (
           <IKImage
-            alt={file.filePath}
-            path={file.filePath}
+            alt={file.filePath ?? "uploaded image"}
+            path={file.filePath ?? undefined}
             width={500}
             height={300}
           />
         ) : type === "video" ? (
           <IKVideo
-            path={file.filePath}
+            path={file.filePath ?? undefined}
             controls={true}
             className="h-96 w-full rounded-xl"
           />
