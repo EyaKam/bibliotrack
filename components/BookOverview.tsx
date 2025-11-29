@@ -3,8 +3,9 @@ import Image from "next/image";
 import { Button } from './ui/button';
 import { Book } from 'lucide-react';
 import BookCover from './BookCover';
-const BookOverview = ({ title , author,genre,rating,total_copies
-,available_copies,description, cover,color } : Book ) => {
+const BookOverview = ({ title , author,genre,rating,totalCopies
+,availableCopies,description, coverUrl,coverColor } : Book ) => {
+  console.log(coverUrl);
   return (
     <section className='book-overview'>
         <div className='flex flex-1 flex-col gap-5'>
@@ -22,8 +23,8 @@ const BookOverview = ({ title , author,genre,rating,total_copies
 
 
            <div className='book-copies'>
-              <p>Total Books : <span> {total_copies}</span></p>
-              <p> Available Books <span>{available_copies}</span></p>
+              <p>Total Books : <span> {totalCopies}</span></p>
+              <p> Available Books <span>{availableCopies}</span></p>
             </div> 
 
             <p className='book-description'>{description}</p>
@@ -37,8 +38,8 @@ const BookOverview = ({ title , author,genre,rating,total_copies
               <BookCover
                 variant="wide"
                 className="z-10"
-                coverColor={color}
-                coverImage={cover}
+                coverColor={coverColor}
+                coverImage={coverUrl}
               />
 
 
@@ -46,8 +47,8 @@ const BookOverview = ({ title , author,genre,rating,total_copies
               opacity-40 max-sm:hidden'>
                 <BookCover
                   variant="wide"
-                  coverColor={color}
-                  coverImage={cover}
+                  coverColor={coverColor}
+                  coverImage={coverUrl}
                 />
               </div>
             </div>

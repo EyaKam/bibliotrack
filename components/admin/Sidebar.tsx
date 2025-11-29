@@ -1,17 +1,16 @@
 "use client";
-import React, { use } from "react";
+import React from "react";
 import Image from "next/image";
 import { adminSideBarLinks } from "@/constants";
-import { Link } from "lucide-react";
+import Link from "next/link";    
 import { cn, getInitials } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import path from "path";
 import { Avatar } from "../ui/avatar";
 import { AvatarFallback } from "@radix-ui/react-avatar";
-import { get } from "http";
-import { Session } from "inspector/promises";
-const Sidebar = ({ session }: { session: Session }) => {
+
+const Sidebar = ({ session }: { session: any }) => {
   const pathname = usePathname();
+
   return (
     <div className="admin-sidebar">
       <div>
@@ -24,6 +23,7 @@ const Sidebar = ({ session }: { session: Session }) => {
           />
           <h1>Bibliotrack</h1>
         </div>
+
         <div className="mt-10 flex flex-col gap-5">
           {adminSideBarLinks.map((link) => {
             const isSelected =
@@ -48,6 +48,7 @@ const Sidebar = ({ session }: { session: Session }) => {
                       className={`${isSelected ? "brightness-0 invert" : ""} object-contain`}
                     />
                   </div>
+
                   <p className={cn(isSelected ? "text-white" : "text-dark")}>
                     {link.text}
                   </p>
@@ -57,12 +58,14 @@ const Sidebar = ({ session }: { session: Session }) => {
           })}
         </div>
       </div>
+
       <div className="user">
         <Avatar>
           <AvatarFallback className="bg-amber-100">
             {getInitials(session?.user?.name || "IN")}
           </AvatarFallback>
         </Avatar>
+
         <div className="flex flex-col max-md:hidden">
           <p className="font-semibold text-dark-200">{session?.user?.name}</p>
           <p className="text-light-500 text-xs">{session?.user?.email}</p>
