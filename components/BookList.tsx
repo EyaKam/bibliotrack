@@ -6,7 +6,7 @@ interface Props {
   containerClassName?: string;
 }
 
-const BookList = ({ books, title, containerClassName }: Props) => {
+const BookList = ({title, books, containerClassName }: Props) => {
   if (books.length < 2) return;
   
   return (

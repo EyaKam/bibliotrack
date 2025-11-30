@@ -3,9 +3,10 @@ import ImageKit from "imagekit";
 import { books } from "./schema";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import dotenv from 'dotenv';
+import{ config } from 'dotenv';
 
-dotenv.config({ path: '.env.local' });
+
+config({ path: '.env.local' });
 const sql = neon(process.env.DATABASE_URL!);
 export const db = drizzle({client: sql});
 
@@ -51,7 +52,6 @@ const seed =  async () => {
 
       await db.insert(books).values({
         ...book,
-        coverColor: book.color,
         coverUrl,
         videoUrl,
         

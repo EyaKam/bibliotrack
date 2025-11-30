@@ -21,8 +21,11 @@ const layout = async ({ children }: { children: ReactNode }) => {
       .where(eq(users.id, session?.user?.id))
       .limit(1);
 
-    if (user[0].lastactivitydate === new Date().toISOString().slice(0, 10))
-      return;
+    if (!user || user.length === 0) return;
+
+    const today = new Date().toISOString().slice(0, 10);
+    
+    if (user[0].lastactivitydate === today) return;
 
     await db
       .update(users)
