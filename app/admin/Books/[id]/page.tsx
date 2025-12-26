@@ -29,6 +29,20 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
     });
   };
 
+  // Construct full ImageKit URL for video
+  const getFullVideoUrl = (videoPath: string) => {
+    if (!videoPath) return "";
+    // If already a full URL, return as is
+    if (videoPath.startsWith("http://") || videoPath.startsWith("https://")) {
+      return videoPath;
+    }
+    // Otherwise prepend ImageKit endpoint
+    const imageKitBaseUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
+    return `${imageKitBaseUrl}${videoPath}`;
+  };
+
+  const fullVideoUrl = getFullVideoUrl(bookDetails.videoUrl);
+
   return (
     <>
       <Button asChild className="back-btn">
@@ -43,7 +57,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
         {bookDetails.coverUrl && (
           <div className="flex-shrink-0">
             <BookCover
-              variant="wide" // or "Small" if you prefer
+              variant="wide"
               coverColor={bookDetails.coverColor}
               coverImage={bookDetails.coverUrl}
               className="h-[400px] w-[280px] rounded-2xl shadow-lg"
@@ -70,7 +84,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
             </div>
           </div>
 
-          <Button className="book-form_btn mt-6" asChild>
+          <Button className="book-form_btn mt-6 text-white" asChild>
             <Link
               href={`/admin/Books/${id}/edit`}
               className="flex items-center justify-center gap-2"
@@ -93,15 +107,17 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
       </section>
 
       {/* Video Section - only if videoUrl exists */}
-      {bookDetails.videoUrl && bookDetails.videoUrl.trim() !== "" && (
+      {fullVideoUrl && fullVideoUrl.trim() !== "" && (
         <section className="mt-7 rounded-2xl bg-white p-7">
           <h3 className="mb-4 text-xl font-semibold text-dark-400">Video</h3>
           <div className="aspect-video w-full max-w-4xl overflow-hidden rounded-xl bg-light-300">
             <video
-              src={bookDetails.videoUrl}
+              src={fullVideoUrl}
               controls
               className="h-full w-full object-cover"
-            />
+            >
+              Your browser does not support the video tag.
+            </video>
           </div>
         </section>
       )}
