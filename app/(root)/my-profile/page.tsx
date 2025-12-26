@@ -1,30 +1,44 @@
 import { auth } from "@/auth";
+import { db } from "@/database/drizzle";
+import { users } from "@/database/schema";
+import { eq } from "drizzle-orm";
+import ProfileCard from "@/components/Profilecard";
 import BookList from "@/components/BookList";
 import { getBorrowedBooks } from "@/lib/getBorrowedBooks";
 
-const Page = async () => {
+export default async function Page() {
   const session = await auth();
 
-  if (!session?.user?.id) {
+  if (!session?.user?.email) {
     return <p>You must be logged in</p>;
   }
 
-  const borrowedBooks = await getBorrowedBooks(session.user.id);
+  const user = await db
+    .select()
+    .from(users)
+    .where(eq(users.email, session.user.email))
+    .limit(1)
+    .then(res => res[0]);
+
+  if (!user) {
+    return <p>User not found</p>;
+  }
+
+  const borrowedBooks = await getBorrowedBooks(user.id);
 
   return (
-    /* Added pt-40 to create a significant gap below the header */
-    /* Added min-h-screen to ensure the dark background covers the whole page */
-    <section className="px-8 pt-40 pb-20 min-h-screen">
-      {borrowedBooks.length > 0 ? (
-        <BookList title="Borrowed Books" books={borrowedBooks} />
-      ) : (
-        /* Matches the text-gray-500 from your screenshot */
-        <p className="text-center text-gray-500 text-lg">
-          No borrowed books yet.
-        </p>
-      )}
+    <section className="px-8 py-10 space-y-10">
+      <ProfileCard
+        user={{
+          fullName: user.fullName,
+          email: user.email,
+          universityId: user.universityId,
+          universityCard: user.universityCard,
+          isVerified: user.status === "APPROVED",
+        }}
+      />
+
+      <BookList title="Borrowed Books" books={borrowedBooks} />
     </section>
   );
-};
-
-export default Page;
+}
