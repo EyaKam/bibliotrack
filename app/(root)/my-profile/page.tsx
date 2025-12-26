@@ -12,10 +12,13 @@ const Page = async () => {
   const borrowedBooks = await getBorrowedBooks(session.user.id);
 
   return (
-    <section className="px-8 py-6">
+    /* Added pt-40 to create a significant gap below the header */
+    /* Added min-h-screen to ensure the dark background covers the whole page */
+    <section className="px-8 pt-40 pb-20 min-h-screen">
       {borrowedBooks.length > 0 ? (
         <BookList title="Borrowed Books" books={borrowedBooks} />
       ) : (
+        /* Matches the text-gray-500 from your screenshot */
         <p className="text-center text-gray-500 text-lg">
           No borrowed books yet.
         </p>
