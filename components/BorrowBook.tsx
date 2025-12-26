@@ -40,7 +40,7 @@ const BorrowBook = ( {
                     toast.success( "Success" ,  {  
                         description : 'Book borrowed successfully ',
                 } ) ;
-                router.push('/');
+                router.push('/my-profile');
 
                 }else{ 
                    toast.error ( "error" ,  {  

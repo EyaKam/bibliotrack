@@ -9,38 +9,38 @@ import { db } from "@/database/drizzle";
 
 const layout = async ({ children }: { children: ReactNode }) => {
   const session = await auth();
-  if (!session) redirect("/sign-in");
+  if (!session || !session.user) redirect("/sign-in");
+
+  const userName = session.user.name ?? "User";
 
   after(async () => {
-    if (!session?.user?.id) return;
+    if (!session.user?.id) return;
 
-    // get the user and see if the last activity date is today
     const user = await db
       .select()
       .from(users)
-      .where(eq(users.id, session?.user?.id))
+      .where(eq(users.id, session.user.id))
       .limit(1);
 
-    if (!user || user.length === 0) return;
+    if (!user.length) return;
 
     const today = new Date().toISOString().slice(0, 10);
-    
     if (user[0].lastactivitydate === today) return;
 
     await db
       .update(users)
-      .set({ lastactivitydate: new Date().toISOString().slice(0, 10) })
-      .where(eq(users.id, session?.user?.id));
+      .set({ lastactivitydate: today })
+      .where(eq(users.id, session.user.id));
   });
 
   return (
     <main className="root-container">
       <div className="mx-auto max-w-7xl">
-        <Header />
-
+        <Header userName={userName} />
         <div className="mt-20 pb-20">{children}</div>
       </div>
     </main>
   );
 };
+
 export default layout;

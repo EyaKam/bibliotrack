@@ -1,26 +1,27 @@
-import { signOut } from "@/auth";
+import { auth } from "@/auth";
 import BookList from "@/components/BookList";
-import { Button } from "@/components/ui/button";
-import { sampleBooks } from "@/constants";
-import React from "react";
+import { getBorrowedBooks } from "@/lib/getBorrowedBooks";
 
-const page = () => {
+const Page = async () => {
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    return <p>You must be logged in</p>;
+  }
+
+  const borrowedBooks = await getBorrowedBooks(session.user.id);
+
   return (
-    <>
-      <form
-        action={async () => {
-          "use server";
-
-          await signOut();
-        }}
-        className="mb-10"
-      >
-        <Button>Logout</Button>
-      </form>
-      
-      <BookList title="Borrowed Books" books={sampleBooks} />
-    </>
+    <section className="px-8 py-6">
+      {borrowedBooks.length > 0 ? (
+        <BookList title="Borrowed Books" books={borrowedBooks} />
+      ) : (
+        <p className="text-center text-gray-500 text-lg">
+          No borrowed books yet.
+        </p>
+      )}
+    </section>
   );
 };
 
-export default page;
+export default Page;
