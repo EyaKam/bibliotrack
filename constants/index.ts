@@ -38,11 +38,7 @@ export const adminSideBarLinks = [
     route: "/admin/account-requests",
     text: "Account Requests",
   },
-  {
-  text: "All Users",
-  route: "/admin/users",
-  img: "/icons/admin/users.svg",
-},
+
 
 ];
 
