@@ -39,8 +39,8 @@ const Header = ({ userName }: HeaderProps) => {
         <Image
           src="/icons/logo.svg"
           alt="logo"
-          width={40}
-          height={40}
+          width={70}
+          height={70}
           className="block"
         />
         <span className="text-2xl text-white drop-shadow-lg font-bold">
