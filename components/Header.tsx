@@ -27,10 +27,21 @@ const Header = ({ userName }: HeaderProps) => {
 
   return (
     <header className="flex justify-between items-center py-6 px-8">
-      {/* Logo */}
-      <Link href="/">
-        <Image src="/icons/logo.svg" alt="logo" width={100} height={100} />
-      </Link>
+    <Link href="/" className="flex items-center gap-3">
+  <Image
+    src="/icons/logo.svg"
+    alt="logo"
+    width={60}
+    height={60}
+    className="block"
+  />
+  <span className="text-4xl text-white  drop-shadow-lg font-medium">
+    Bibliotrack
+  </span>
+</Link>
+
+
+
 
       {/* Right navigation */}
       <div className="flex items-center gap-6">
