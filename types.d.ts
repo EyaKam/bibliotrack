@@ -1,3 +1,11 @@
+interface UserProps {
+  id: string;
+  fullName: string;
+  email: string;
+  universityId: number;
+  universityCard: string;
+  createdAt: string | null;
+}
 interface Book {
   id: string;
   title: string;
