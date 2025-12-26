@@ -18,10 +18,10 @@ const Sidebar = ({ session }: { session: Session }) => {
           <Image
             src="/icons/admin/logo.svg"
             alt="logo"
-            height={37}
-            width={37}
+            height={45}
+            width={45}
           />
-          <h1>BbiblioTrack</h1>
+          <h1>BiblioTrack</h1>
         </div>
 
         <div className="mt-10 flex flex-col gap-5">

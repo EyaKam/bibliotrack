@@ -29,21 +29,21 @@ const Header = ({ userName }: HeaderProps) => {
     <header className="flex justify-between items-center py-6 px-8">
       {/* Logo */}
       <Link href="/">
-        <Image src="/icons/logo.svg" alt="logo" width={40} height={40} />
+        <Image src="/icons/logo.svg" alt="logo" width={100} height={100} />
       </Link>
 
       {/* Right navigation */}
       <div className="flex items-center gap-6">
         <Link
           href="/"
-          className="text-white hover:text-amber-100 transition-colors text-sm font-medium"
+          className="text-white hover:text-amber-100 transition-colors text-l font-medium"
         >
           Home
         </Link>
 
         <Link
           href="/search"
-          className="text-white hover:text-amber-100 transition-colors text-sm font-medium"
+          className="text-white hover:text-amber-100 transition-colors text-l font-medium"
         >
           Search
         </Link>
@@ -58,7 +58,7 @@ const Header = ({ userName }: HeaderProps) => {
               {getInitials(userName)}
             </AvatarFallback>
           </Avatar>
-          <span className="text-white text-sm font-medium">
+          <span className="text-white text-l font-medium">
             {firstName}
           </span>
         </Link>
@@ -76,7 +76,7 @@ const Header = ({ userName }: HeaderProps) => {
             aria-label="Logout"
             className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
           >
-            <LogOut className="h-10 w-10" />
+            <LogOut className="h-6 w-6" />
           </Button>
         </form>
       </div>
