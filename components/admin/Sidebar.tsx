@@ -1,14 +1,14 @@
 "use client";
-import React from "react";
+
 import Image from "next/image";
 import { adminSideBarLinks } from "@/constants";
-import Link from "next/link";    
+import Link from "next/link";
 import { cn, getInitials } from "@/lib/utils";
 import { usePathname } from "next/navigation";
-import { Avatar } from "../ui/avatar";
-import { AvatarFallback } from "@radix-ui/react-avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Session } from "next-auth";
 
-const Sidebar = ({ session }: { session: any }) => {
+const Sidebar = ({ session }: { session: Session }) => {
   const pathname = usePathname();
 
   return (
@@ -17,11 +17,11 @@ const Sidebar = ({ session }: { session: any }) => {
         <div className="logo">
           <Image
             src="/icons/admin/logo.svg"
-            alt="Logo"
-            width={37}
+            alt="logo"
             height={37}
+            width={37}
           />
-          <h1>Bibliotrack</h1>
+          <h1>BbiblioTrack</h1>
         </div>
 
         <div className="mt-10 flex flex-col gap-5">
@@ -45,7 +45,7 @@ const Sidebar = ({ session }: { session: any }) => {
                       src={link.img}
                       alt="icon"
                       fill
-                      className={`${isSelected ? "brightness-0 invert" : ""} object-contain`}
+                      className={`${isSelected ? "brightness-0 invert" : ""}  object-contain`}
                     />
                   </div>
 
@@ -68,7 +68,7 @@ const Sidebar = ({ session }: { session: any }) => {
 
         <div className="flex flex-col max-md:hidden">
           <p className="font-semibold text-dark-200">{session?.user?.name}</p>
-          <p className="text-light-500 text-xs">{session?.user?.email}</p>
+          <p className="text-xs text-light-500">{session?.user?.email}</p>
         </div>
       </div>
     </div>
