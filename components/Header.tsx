@@ -1,9 +1,9 @@
-import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { signOut } from "@/auth";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback } from "./ui/avatar";
+import { LogOut } from "lucide-react";
 
 const getInitials = (name: string) => {
   return name
@@ -14,11 +14,17 @@ const getInitials = (name: string) => {
     .slice(0, 2);
 };
 
+const getFirstName = (name: string) => {
+  return name.split(" ")[0];
+};
+
 interface HeaderProps {
-  userName?: string;
+  userName: string;
 }
 
-const Header = ({ userName = "Adrian" }: HeaderProps) => {
+const Header = ({ userName }: HeaderProps) => {
+  const firstName = getFirstName(userName);
+
   return (
     <header className="flex justify-between items-center py-6 px-8">
       {/* Logo */}
@@ -26,27 +32,25 @@ const Header = ({ userName = "Adrian" }: HeaderProps) => {
         <Image src="/icons/logo.svg" alt="logo" width={40} height={40} />
       </Link>
 
-      {/* Navigation à droite */}
+      {/* Right navigation */}
       <div className="flex items-center gap-6">
-        {/* Home Link */}
-        <Link 
-          href="/" 
+        <Link
+          href="/"
           className="text-white hover:text-amber-100 transition-colors text-sm font-medium"
         >
           Home
         </Link>
 
-        {/* Search Link */}
-        <Link 
-          href="/search" 
+        <Link
+          href="/search"
           className="text-white hover:text-amber-100 transition-colors text-sm font-medium"
         >
           Search
         </Link>
 
-        {/* User Profile */}
-        <Link 
-          href="/my-profile" 
+        {/* Profile */}
+        <Link
+          href="/my-profile"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
           <Avatar className="w-8 h-8 bg-white">
@@ -54,20 +58,25 @@ const Header = ({ userName = "Adrian" }: HeaderProps) => {
               {getInitials(userName)}
             </AvatarFallback>
           </Avatar>
-          <span className="text-white text-sm font-medium">{userName}</span>
+          <span className="text-white text-sm font-medium">
+            {firstName}
+          </span>
         </Link>
 
-        {/* Logout Button */}
+        {/* Logout icon */}
         <form
           action={async () => {
             "use server";
             await signOut();
           }}
         >
-          <Button 
-            className="bg-amber-100 text-[#1a1d29] hover:bg-amber-200 font-medium"
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label="Logout"
+            className="text-red-500 hover:text-red-600 hover:bg-red-500/10"
           >
-            Logout
+            <LogOut className="h-10 w-10" />
           </Button>
         </form>
       </div>
