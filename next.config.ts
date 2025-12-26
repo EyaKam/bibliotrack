@@ -1,22 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  images: {
+ images: {
     remotePatterns: [
+      { protocol: "https", hostname: "placeholder.co" },
+      { protocol: "https", hostname: "m.media-amazon.com" },
+      { protocol: "https", hostname: "ik.imagekit.io" },
+      // ADD THIS ONE:
       {
         protocol: "https",
-        hostname: "placeholder.co",
-      },
-      {
-        protocol: "https",
-        hostname: "m.media-amazon.com",
-      },
-      {
-        protocol: "https",
-        hostname: "ik.imagekit.io",
+        hostname: "ucarecdn.com", 
       },
     ],
-    
   },  
   typescript : {
     ignoreBuildErrors : true,
