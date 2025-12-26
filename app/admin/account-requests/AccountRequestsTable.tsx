@@ -10,10 +10,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { Eye } from "lucide-react";
 
 const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
   const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
   const [actionType, setActionType] = useState<"approve" | "deny" | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [viewingCard, setViewingCard] = useState<string | null>(null);
 
   const handleAction = async (user: UserProps, type: "approve" | "deny") => {
     setSelectedUser(user);
@@ -21,10 +24,12 @@ const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
   };
 
   const confirmAction = async () => {
-    if (!selectedUser || !actionType) return;
+    if (!selectedUser || !actionType || isProcessing) return;
+
+    setIsProcessing(true);
 
     try {
-      await fetch(`/api/admin/users/${selectedUser.id}`, {
+      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -32,15 +37,33 @@ const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error("Failed to update user status");
+      }
+
       toast.success(
         `User ${actionType === "approve" ? "approved" : "denied"} successfully`
       );
       setSelectedUser(null);
       setActionType(null);
-      window.location.reload();
+
+      // Wait a bit for the toast to show, then reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     } catch (err) {
-      toast.error("Something went wrong.");
+      console.error("Error updating user:", err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsProcessing(false);
     }
+  };
+
+  const handleViewIdCard = (universityCard: string) => {
+    // Construct full ImageKit URL
+    const imageKitBaseUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
+    const fullImageUrl = `${imageKitBaseUrl}${universityCard}`;
+    setViewingCard(fullImageUrl);
   };
 
   // Get initials for avatar
@@ -100,8 +123,12 @@ const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
                 </td>
                 <td className="py-4 text-gray-700">{user.universityId}</td>
                 <td className="py-4">
-                  <button className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1">
-                    👁️ View ID Card
+                  <button
+                    onClick={() => handleViewIdCard(user.universityCard)}
+                    className="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1.5 hover:underline"
+                  >
+                    <Eye className="w-4 h-4" />
+                    View ID Card
                   </button>
                 </td>
                 <td className="py-4">
@@ -114,10 +141,11 @@ const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
                       Approve Account
                     </Button>
                     <button
-                      className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center text-red-500"
+                      className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center text-red-500 text-xl"
                       onClick={() => handleAction(user, "deny")}
+                      title="Deny account"
                     >
-                      ⊗
+                      ×
                     </button>
                   </div>
                 </td>
@@ -127,8 +155,34 @@ const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
         </table>
       </div>
 
+      {/* ID Card Viewing Modal */}
+      <Dialog open={!!viewingCard} onOpenChange={() => setViewingCard(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>University ID Card</DialogTitle>
+          </DialogHeader>
+          <div className="flex justify-center items-center p-4">
+            <img
+              src={viewingCard || ""}
+              alt="University ID Card"
+              className="max-w-full max-h-[70vh] object-contain"
+              onError={(e) => {
+                console.error("Image failed to load:", viewingCard);
+                toast.error("Failed to load ID card image");
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button onClick={() => setViewingCard(null)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Modal */}
-      <Dialog open={!!selectedUser} onOpenChange={() => setSelectedUser(null)}>
+      <Dialog
+        open={!!selectedUser}
+        onOpenChange={() => !isProcessing && setSelectedUser(null)}
+      >
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -144,6 +198,13 @@ const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
           </p>
           <DialogFooter>
             <Button
+              variant="outline"
+              onClick={() => setSelectedUser(null)}
+              disabled={isProcessing}
+            >
+              Cancel
+            </Button>
+            <Button
               onClick={confirmAction}
               variant={actionType === "approve" ? "default" : "destructive"}
               className={
@@ -151,10 +212,13 @@ const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
                   ? "bg-green-600 hover:bg-green-700"
                   : ""
               }
+              disabled={isProcessing}
             >
-              {actionType === "approve"
-                ? "Approve & Send Confirmation"
-                : "Deny & Notify Student"}
+              {isProcessing
+                ? "Processing..."
+                : actionType === "approve"
+                  ? "Approve & Send Confirmation"
+                  : "Deny & Notify Student"}
             </Button>
           </DialogFooter>
         </DialogContent>
