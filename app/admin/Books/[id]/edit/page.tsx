@@ -22,7 +22,7 @@ const Page = async ({ params }: { params: Promise<{ id: string }> }) => {
   return (
     <>
       <Button asChild className="back-btn">
-        <Link href={`/admin/Books/${id}`} className="flex items-center gap-2">
+        <Link href="/admin/Books" className="flex items-center gap-2">
           <ArrowLeft size={16} />
           Go back
         </Link>

@@ -49,3 +49,85 @@ export const borrowBook = async (params: BorrowBookParams) => {
     };
   }
 };
+
+export const createBook = async (params: BookParams) => {
+  try {
+    const newBook = await db
+      .insert(books)
+      .values({
+        title: params.title,
+        author: params.author,
+        genre: params.genre,
+        rating: params.rating,
+        coverUrl: params.coverUrl,
+        coverColor: params.coverColor,
+        description: params.description,
+        totalCopies: params.totalCopies,
+        availableCopies: params.availableCopies,
+        videoUrl: params.videoUrl,
+        summary: params.summary,
+      })
+      .returning();
+
+    return { success: true, data: newBook[0] };
+  } catch (error) {
+    console.error("Error creating book:", error);
+    return { success: false, message: "Failed to create book" };
+  }
+};
+
+export const updateBook = async (bookId: string, params: BookParams) => {
+  try {
+    const updatedBook = await db
+      .update(books)
+      .set({
+        title: params.title,
+        author: params.author,
+        genre: params.genre,
+        rating: params.rating,
+        coverUrl: params.coverUrl,
+        coverColor: params.coverColor,
+        description: params.description,
+        totalCopies: params.totalCopies,
+        availableCopies: params.availableCopies,
+        videoUrl: params.videoUrl,
+        summary: params.summary,
+      })
+      .where(eq(books.id, bookId))
+      .returning();
+
+    if (!updatedBook || updatedBook.length === 0) {
+      return { success: false, message: "Book not found" };
+    }
+
+    return { success: true, data: updatedBook[0] };
+  } catch (error) {
+    console.error("Error updating book:", error);
+    return { success: false, message: "Failed to update book" };
+  }
+};
+
+export const deleteBook = async (bookId: string) => {
+  try {
+    // Check if book has any borrow records
+    const borrowedRecords = await db
+      .select()
+      .from(borrowRecords)
+      .where(eq(borrowRecords.bookId, bookId))
+      .limit(1);
+
+    if (borrowedRecords.length > 0) {
+      return {
+        success: false,
+        message: "Cannot delete book with existing borrow records",
+      };
+    }
+
+    await db.delete(books).where(eq(books.id, bookId));
+
+    return { success: true, message: "Book deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting book:", error);
+    return { success: false, message: "Failed to delete book" };
+  }
+};
