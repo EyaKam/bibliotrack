@@ -3,37 +3,76 @@ import Link from "next/link";
 import Image from "next/image";
 import { signOut } from "@/auth";
 import { Button } from "./ui/button";
+import { Avatar, AvatarFallback } from "./ui/avatar";
 
-const Header = () => {
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+interface HeaderProps {
+  userName?: string;
+}
+
+const Header = ({ userName = "Adrian" }: HeaderProps) => {
   return (
-    <header className="my-10 flex justify-between gap-5">
+    <header className="flex justify-between items-center py-6 px-8">
+      {/* Logo */}
       <Link href="/">
         <Image src="/icons/logo.svg" alt="logo" width={40} height={40} />
       </Link>
 
-      <ul className="flex flex-row items-center gap-8">
+      {/* Navigation à droite */}
+      <div className="flex items-center gap-6">
+        {/* Home Link */}
+        <Link 
+          href="/" 
+          className="text-white hover:text-amber-100 transition-colors text-sm font-medium"
+        >
+          Home
+        </Link>
 
-        <li>
-            <form
-              action={async () => {
-              "use server";
+        {/* Search Link */}
+        <Link 
+          href="/search" 
+          className="text-white hover:text-amber-100 transition-colors text-sm font-medium"
+        >
+          Search
+        </Link>
 
-              await signOut();
-              }}
-              className="mb-10"
-            >
-            <Button>Logout</Button>
-            </form>
-         {/*<Link href="/my-profile">
-           <Avatar>
-              <AvatarFallback className="bg-amber-100">
-                {getInitials(session?.user?.name || "IN")}
-              </AvatarFallback>
-            </Avatar>
-          </Link>*/}
-        </li>
-      </ul>
+        {/* User Profile */}
+        <Link 
+          href="/my-profile" 
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
+          <Avatar className="w-8 h-8 bg-white">
+            <AvatarFallback className="bg-white text-[#1a1d29] text-xs font-semibold">
+              {getInitials(userName)}
+            </AvatarFallback>
+          </Avatar>
+          <span className="text-white text-sm font-medium">{userName}</span>
+        </Link>
+
+        {/* Logout Button */}
+        <form
+          action={async () => {
+            "use server";
+            await signOut();
+          }}
+        >
+          <Button 
+            className="bg-amber-100 text-[#1a1d29] hover:bg-amber-200 font-medium"
+          >
+            Logout
+          </Button>
+        </form>
+      </div>
     </header>
   );
 };
+
 export default Header;

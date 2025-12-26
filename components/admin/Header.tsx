@@ -1,4 +1,5 @@
 import React from "react";
+import { Session } from "next-auth";
 
 const Header = ({ session }: { session: Session }) => {
   return (
