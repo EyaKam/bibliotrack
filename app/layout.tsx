@@ -40,6 +40,7 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
         <body
           className={`${ibmPlexSans.className} ${bebasNeue.variable} antialiased`}
         >
+          {/* Render children directly without a centering wrapper */}
           {children}
 
           <Toaster />

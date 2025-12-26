@@ -38,7 +38,7 @@ export const adminSideBarLinks = [
     route: "/admin/account-requests",
     text: "Account Requests",
   },
-
+  
 
 ];
 
@@ -74,7 +74,7 @@ export const sampleBooks = [
     summary:
       "A dazzling novel about all the choices that go into a life well lived, The Midnight Library tells the story of Nora Seed as she finds herself between life and death. A dazzling novel about all the choices that go into a life well lived, The Midnight Library tells the story of Nora Seed as she finds herself between life and death.",
     createdAt: null,
-    },
+  },
   {
     id: "2",
     title: "Atomic Habits",
@@ -91,7 +91,7 @@ export const sampleBooks = [
     summary:
       "A revolutionary guide to making good habits, breaking bad ones, and getting 1% better every day.",
     createdAt: null,
-    },
+  },
   {
     id: "3",
     title: "You Don't Know JS: Scope & Closures",
@@ -109,7 +109,7 @@ export const sampleBooks = [
     summary:
       "An essential guide to understanding the core mechanisms of JavaScript, focusing on scope and closures.",
     createdAt: null,
-    },
+  },
   {
     id: "4",
     title: "The Alchemist",
@@ -127,7 +127,7 @@ export const sampleBooks = [
     summary:
       "A magical tale of Santiago, an Andalusian shepherd boy, who embarks on a journey to find a worldly treasure.",
     createdAt: null,
-    },
+  },
   {
     id: "5",
     title: "Deep Work",
@@ -144,7 +144,7 @@ export const sampleBooks = [
     summary:
       "Rules for focused success in a distracted world, teaching how to cultivate deep focus to achieve peak productivity.",
     createdAt: null,
-    },
+  },
   {
     id: "6",
     title: "Clean Code",
@@ -162,7 +162,7 @@ export const sampleBooks = [
     summary:
       "A handbook of agile software craftsmanship, offering best practices and principles for writing clean and maintainable code.",
     createdAt: null,
-    },
+  },
   {
     id: "7",
     title: "The Pragmatic Programmer",
@@ -180,7 +180,7 @@ export const sampleBooks = [
     summary:
       "A timeless guide for developers to hone their skills and improve their programming practices.",
     createdAt: null,
-    },
+  },
   {
     id: "8",
     title: "The Psychology of Money",
@@ -198,7 +198,7 @@ export const sampleBooks = [
     summary:
       "Morgan Housel explores the unique behaviors and mindsets that shape financial success and decision-making.",
     createdAt: null,
-    },
+  },
 ];
 
 export const sorts = [

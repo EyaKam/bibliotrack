@@ -3,43 +3,66 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { db } from "@/database/drizzle";
 import { books } from "@/database/schema";
-import { desc } from "drizzle-orm";
+import { desc, asc, sql } from "drizzle-orm";
 import BookTable from "@/components/admin/BookTable";
-import { ArrowUpDown } from "lucide-react";
+import SortButton from "@/components/admin/SortButton";
+import SearchBar from "@/components/admin/SearchBar";
 
-const Page = async () => {
-  // Fetch all books safely
-  const allBooksRaw = await db
-    .select()
-    .from(books)
-    .orderBy(desc(books.createdAt), desc(books.id)) // deterministic ordering
-    .limit(100); // ensure all rows are fetched
+interface PageProps {
+  searchParams: Promise<{
+    sort?: string;
+    search?: string;
+  }>;
+}
 
-  // Debug: check that all books are fetched
-  console.log(
-    "All books fetched:",
-    allBooksRaw.map((b) => ({
-      id: b.id,
-      title: b.title,
-      createdAt: b.createdAt,
-    }))
-  );
+const Page = async ({ searchParams }: PageProps) => {
+  const params = await searchParams;
+  const sortType = params.sort ?? "newest";
+  const searchQuery = params.search ?? "";
+
+  // ✅ IMPORTANT: $dynamic()
+  let query = db.select().from(books).$dynamic();
+
+  // Search
+  if (searchQuery) {
+    const q = `%${searchQuery.toLowerCase()}%`;
+    query = query.where(
+      sql`
+        LOWER(${books.title}) LIKE ${q}
+        OR LOWER(${books.author}) LIKE ${q}
+        OR LOWER(${books.genre}) LIKE ${q}
+      `
+    );
+  }
+
+  // Sorting
+  switch (sortType) {
+    case "oldest":
+      query = query.orderBy(asc(books.createdAt), asc(books.id));
+      break;
+    case "available":
+      query = query.orderBy(desc(books.availableCopies), desc(books.id));
+      break;
+    case "highestRated":
+      query = query.orderBy(desc(books.rating), desc(books.id));
+      break;
+    case "newest":
+    default:
+      query = query.orderBy(desc(books.createdAt), desc(books.id));
+  }
+
+  const allBooksRaw = await query.limit(100);
 
   return (
     <section className="w-full rounded-2xl bg-white p-7">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-xl font-semibold text-dark-400">All Books</h2>
+
         <div className="flex items-center gap-3">
+          <SortButton currentSort={sortType} />
           <Button
-            variant="outline"
-            className="gap-2 border-light-400 text-dark-200 hover:bg-light-300"
-          >
-            <ArrowUpDown size={16} />
-            <span className="max-sm:hidden">A-Z</span>
-          </Button>
-          <Button
-            className="bg-primary-admin hover:bg-primary-admin/90 text-white"
             asChild
+            className="bg-primary-admin text-white hover:bg-primary-admin/90"
           >
             <Link href="/admin/Books/new">
               <span className="max-sm:hidden">+ Create a New Book</span>
@@ -49,8 +72,9 @@ const Page = async () => {
         </div>
       </div>
 
+      <SearchBar initialSearch={searchQuery} />
+
       <div className="mt-7 w-full overflow-hidden">
-        {/* Pass raw results, no early casting */}
         <BookTable books={allBooksRaw} />
       </div>
     </section>
