@@ -23,7 +23,7 @@ const getUserState = async (email: string): Promise<UserState> => {
 
   if (user.length === 0) return "non-active";
 
-  const lastactivitydate = new Date(user[0].lastactivitydate!);
+  const lastactivitydate = user[0].lastactivitydate ? new Date(user[0].lastactivitydate) : new Date();
   const now = new Date();
   const timeDifference = now.getTime() - lastactivitydate.getTime();
 
@@ -40,15 +40,16 @@ const getUserState = async (email: string): Promise<UserState> => {
 export const { POST } = serve<InitialData>(async (context) => {
   const { email, fullName } = context.requestPayload;
 
-  // Welcome Email
-  await context.run("new-signup", async () => {
+  // 1. Account Approved Email (Triggered by Admin)
+  await context.run("account-approved-notification", async () => {
     await sendEmail({
       email,
-      subject: "Welcome to the platform",
-      message: `Welcome ${fullName}!`,
+      subject: "Your Library Account is Approved!",
+      message: `Great news ${fullName}! Your identity card has been verified. You can now access the library and borrow books.`,
     });
   });
 
+  // Wait for 3 days before checking their activity for the first time
   await context.sleep("wait-for-3-days", 60 * 60 * 24 * 3);
 
   while (true) {
@@ -60,20 +61,22 @@ export const { POST } = serve<InitialData>(async (context) => {
       await context.run("send-email-non-active", async () => {
         await sendEmail({
           email,
-          subject: "Are you still there?",
-          message: `Hey ${fullName}, we miss you!`,
+          subject: "We miss you at the Library",
+          message: `Hey ${fullName}, it's been a few days since you last visited. Come check out our new arrivals!`,
         });
       });
     } else if (state === "active") {
+      // Optional: Send a tip or a "Thank you for using the library"
       await context.run("send-email-active", async () => {
         await sendEmail({
           email,
-          subject: "Welcome back!",
-          message: `Welcome back ${fullName}!`,
+          subject: "Keep it up!",
+          message: `We love seeing you active in the library, ${fullName}! Check your profile for upcoming book due dates.`,
         });
       });
     }
 
+    // Check again in 30 days
     await context.sleep("wait-for-1-month", 60 * 60 * 24 * 30);
   }
 });

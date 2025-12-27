@@ -40,11 +40,9 @@ export const signInWithCredentials = async (
 
 export const signUp = async (params: AuthCredentials) => {
   const { fullName, email, universityId, password, universityCard } = params;
-  //Check if user already exists
 
   const ip = (await headers()).get("x-forwarded-for") || "127.0.0.1";
   const { success } = await ratelimit.limit(ip);
-
   if (!success) return redirect("/too-fast");
 
   const existingUser = await db
@@ -56,6 +54,7 @@ export const signUp = async (params: AuthCredentials) => {
   if (existingUser.length > 0) {
     return { success: false, error: "User already exists" };
   }
+
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await hash(password, salt);
 
@@ -66,15 +65,10 @@ export const signUp = async (params: AuthCredentials) => {
       universityId,
       password: hashedPassword,
       universityCard,
+      // status defaults to 'PENDING' automatically from schema
     });
 
-    await workflowClient.trigger({
-      url: `${config.env.prodApiEndpoint}/api/workflows/onboarding`,
-      body: {
-        email,
-        fullName,
-      },
-    });
+    // ❌ REMOVED: workflowClient.trigger block (moved to admin approval)
 
     await signInWithCredentials({ email, password });
 

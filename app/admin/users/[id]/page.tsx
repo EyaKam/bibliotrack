@@ -29,7 +29,7 @@ const Page = async ({ params }: Props) => {
   const cleanPath = user.universityCard.startsWith("/") 
     ? user.universityCard 
     : `/${user.universityCard}`;
-    
+      
   const fullImageUrl = `${imageKitEndpoint}${cleanPath}`;
 
   return (
