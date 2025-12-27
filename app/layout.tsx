@@ -40,14 +40,8 @@ const RootLayout = async ({ children }: { children: ReactNode }) => {
         <body
           className={`${ibmPlexSans.className} ${bebasNeue.variable} antialiased`}
         >
-          {/* Wrapping children in a main container with min-h-screen 
-            and ensuring it doesn't force everything to the center.
-          */}
-          <main className="root-container flex min-h-screen flex-col items-center">
-            <div className="mx-auto w-full max-w-7xl">
-              {children}
-            </div>
-          </main>
+          {/* Render children directly without a centering wrapper */}
+          {children}
 
           <Toaster />
         </body>
