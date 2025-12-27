@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import BookCover from "@/components/BookCover";
+import { BorrowTableActions } from "./BorrowTableActions"; // Integrated here
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,14 +62,13 @@ const BorrowRecordsTable = ({ records }: BorrowRecordsTableProps) => {
   const formatDate = (date: string | Date | null) =>
     date ? new Date(date).toLocaleDateString("en-US") : "N/A";
 
-  // Helper to get status badge color
   const getStatusColor = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "borrowed":
+    switch (status?.toUpperCase()) {
+      case "BORROWED":
         return "bg-yellow-100 text-yellow-600 border-yellow-200";
-      case "returned":
+      case "RETURNED":
         return "bg-green-100 text-green-600 border-green-200";
-      case "overdue":
+      case "OVERDUE":
         return "bg-red-100 text-red-600 border-red-200";
       default:
         return "bg-gray-100 text-gray-600 border-gray-200";
@@ -84,8 +84,9 @@ const BorrowRecordsTable = ({ records }: BorrowRecordsTableProps) => {
               <th className="pb-4 pr-4">Book</th>
               <th className="pb-4 px-4">Borrower</th>
               <th className="pb-4 px-4">Status</th>
+              <th className="pb-4 px-4 text-center">Update Status</th> {/* Added Header */}
               <th className="pb-4 px-4">Borrowed Date</th>
-              <th className="pb-4 pl-4">Action</th>
+              <th className="pb-4 pl-4 text-right">Delete</th>
             </tr>
           </thead>
 
@@ -131,10 +132,19 @@ const BorrowRecordsTable = ({ records }: BorrowRecordsTableProps) => {
                     {record.status}
                   </span>
                 </td>
+
+                {/* Status Toggle Button Column */}
+                <td className="py-4 px-4 align-middle text-center">
+                  <BorrowTableActions 
+                    recordId={record.id} 
+                    status={record.status} 
+                  />
+                </td>
+
                 <td className="py-4 px-4 align-middle text-dark-300">
                   {formatDate(record.createdAt)}
                 </td>
-                <td className="py-4 pl-4 align-middle">
+                <td className="py-4 pl-4 align-middle text-right">
                   <button
                     onClick={() => setDeleteId(record.id)}
                     className="rounded p-2 text-red-500 hover:bg-red-50 transition"
@@ -165,14 +175,14 @@ const BorrowRecordsTable = ({ records }: BorrowRecordsTableProps) => {
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogAction
+             <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+             <AlertDialogAction
               onClick={handleDelete}
               disabled={isDeleting}
-              className="bg-red-500 hover:bg-red-600"
+              className="bg-red-500 hover:bg-red-600 text-white"
             >
               {isDeleting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

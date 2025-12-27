@@ -3,7 +3,7 @@ import BorrowRequests from "@/components/admin/BorrowRequests";
 import AccountRequests from "@/components/admin/accountrequests";
 import { db } from "@/database/drizzle";
 import { users, books, borrowRecords } from "@/database/schema";
-import { sql } from "drizzle-orm";
+import { sql, ne } from "drizzle-orm"; // Added ne
 import RecentlyAddedBooks from "@/components/admin/RecentlyAddedBooks";
 
 export default async function AdminDashboard() {
@@ -15,9 +15,11 @@ export default async function AdminDashboard() {
     .select({ count: sql<number>`count(*)` })
     .from(books);
 
-  const [{ count: borrowedBooks }] = await db
+  // ✅ FIX: Only count records where status is NOT 'RETURNED'
+  const [{ count: activeBorrows }] = await db
     .select({ count: sql<number>`count(*)` })
-    .from(borrowRecords);
+    .from(borrowRecords)
+    .where(ne(borrowRecords.status, "RETURNED")); 
 
   return (
     <div className="space-y-6">
@@ -25,25 +27,22 @@ export default async function AdminDashboard() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="Borrowed Books" value={borrowedBooks.toString()} />
+        {/* Update the value here */}
+        <StatCard title="Active Borrows" value={activeBorrows.toString()} />
         <StatCard title="Total Users" value={totalUsers.toString()} />
         <StatCard title="Total Books" value={totalBooks.toString()} />
       </div>
 
-      {/* Main layout */}
+      {/* ... rest of your layout ... */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Left column */}
         <div className="flex flex-col gap-6 lg:col-span-2">
           <BorrowRequests />
           <AccountRequests />
         </div>
 
-        {/* Right column */}
         <div className="lg:col-span-1">
           <RecentlyAddedBooks />
         </div>
-
       </div>
     </div>
   );

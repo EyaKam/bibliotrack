@@ -1,5 +1,4 @@
 import { auth } from "@/auth";
-import { color } from "bun";
 import { desc } from "drizzle-orm";
 import { University } from "lucide-react";
 import { email, z } from "zod";
@@ -8,9 +7,9 @@ export const signUpSchema = z.object({
     fullName: z.string().min(3),
     email: z.string().email(),
     password: z.string().min(8),
-    universityId: z.coerce.number(),
+    // Change this from coerce.number to string
+    universityId: z.string().min(1, "University ID is required").regex(/^\d+$/, "ID must contain only numbers"),
     universityCard: z.string().nonempty("University card is required"),
-    
 });
 export const signInSchema = z.object({
     email: z.string().email(),

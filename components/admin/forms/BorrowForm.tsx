@@ -5,12 +5,17 @@ import { useForm, Controller } from "react-hook-form";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel } from "@/components/ui/field";
-import { Form, FormControl, FormMessage } from "@/components/ui/form";
-import {
+import { 
+  Form, 
+  FormControl, 
+  FormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";import {
   Select,
   SelectContent,
   SelectItem,
@@ -19,6 +24,8 @@ import {
 } from "@/components/ui/select";
 
 import { createBorrowRecord } from "@/lib/admin/actions/Borrow";
+import router from "next/router";
+import { users } from "@/database/schema";
 
 // Define schema locally for borrow records
 const borrowSchema = z.object({
@@ -41,7 +48,7 @@ const BorrowForm = ({ users, books }: BorrowFormProps) => {
     defaultValues: {
       userId: "",
       bookId: "",
-      dueDate: "",
+      dueDate: new Date().toISOString().split("T")[0],
       status: "BORROWED",
     },
   });
@@ -50,130 +57,81 @@ const BorrowForm = ({ users, books }: BorrowFormProps) => {
     const result = await createBorrowRecord(values);
 
     if (result.success) {
-      toast.success("Success", {
-        description: "Borrow record created successfully",
-      });
+      toast.success("Success", { description: "Borrow record created" });
       router.push("/admin/borrow-records");
     } else {
-      toast.error("Error", {
-        description: result.message,
-      });
+      toast.error("Error", { description: result.message });
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        
         {/* User Selection */}
-        <Controller
+        <FormField
           control={form.control}
           name="userId"
           render={({ field }) => (
-            <Field className="flex flex-col gap-1">
-              <FieldLabel className="text-base font-normal text-dark-500">
-                Borrower
-              </FieldLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="book-form_input min-h-[50px]">
+            <FormItem>
+              <FormLabel>Borrower</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="book-form_input">
                     <SelectValue placeholder="Select a user" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {users.map((user) => (
-                      <SelectItem key={user.id} value={user.id}>
-                        {user.fullName} ({user.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                </FormControl>
+                <SelectContent>
+                  {users.map((user) => (
+                    <SelectItem key={user.id} value={user.id}>
+                      {user.fullName}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
-            </Field>
+            </FormItem>
           )}
         />
 
         {/* Book Selection */}
-        <Controller
+        <FormField
           control={form.control}
           name="bookId"
           render={({ field }) => (
-            <Field className="flex flex-col gap-1">
-              <FieldLabel className="text-base font-normal text-dark-500">
-                Book
-              </FieldLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="book-form_input min-h-[50px]">
+            <FormItem>
+              <FormLabel>Book</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="book-form_input">
                     <SelectValue placeholder="Select a book" />
                   </SelectTrigger>
-                  <SelectContent>
-                    {books.map((book) => (
-                      <SelectItem key={book.id} value={book.id}>
-                        {book.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormControl>
+                </FormControl>
+                <SelectContent>
+                  {books.map((book) => (
+                    <SelectItem key={book.id} value={book.id}>
+                      {book.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               <FormMessage />
-            </Field>
-          )}
-        />
-
-        {/* Status Selection */}
-        <Controller
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <Field className="flex flex-col gap-1">
-              <FieldLabel className="text-base font-normal text-dark-500">
-                Status
-              </FieldLabel>
-              <FormControl>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger className="book-form_input min-h-[50px]">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BORROWED">Borrowed</SelectItem>
-                    <SelectItem value="RETURNED">Returned</SelectItem>
-                    <SelectItem value="OVERDUE">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-              <FormMessage />
-            </Field>
+            </FormItem>
           )}
         />
 
         {/* Due Date */}
-        <Controller
+        <FormField
           control={form.control}
           name="dueDate"
           render={({ field }) => (
-            <Field className="flex flex-col gap-1">
-              <FieldLabel className="text-base font-normal text-dark-500">
-                Due Date
-              </FieldLabel>
+            <FormItem>
+              <FormLabel>Due Date</FormLabel>
               <FormControl>
-                <Input
-                  type="date"
-                  placeholder="Select due date"
-                  {...field}
-                  className="book-form_input"
-                />
+                <Input type="date" className="book-form_input" {...field} />
               </FormControl>
               <FormMessage />
-            </Field>
+            </FormItem>
           )}
         />
 

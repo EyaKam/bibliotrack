@@ -1,7 +1,7 @@
 import { uuid, integer, pgTable, text, varchar, pgEnum,date,timestamp } from 'drizzle-orm/pg-core';
 export const statusEnum = pgEnum('status', ['PENDING', 'APPROVED', 'REJECTED']);
 export const roleEnum = pgEnum('role', ['USER', 'ADMIN']);
-export const borrow_statusEnum = pgEnum('borrow_status', ['BORROWED', 'RETURNED']);
+export const borrow_statusEnum = pgEnum('borrow_status', ['BORROWED', 'RETURNED','OVERDUE' ]);
 export const users = pgTable('users', {
   id: uuid('id').defaultRandom().primaryKey(),
   fullName: varchar('full_name', { length: 255 }).notNull(),
@@ -34,7 +34,7 @@ export const books = pgTable('books', {
 export const borrowRecords = pgTable("borrow_records", {
   id: uuid("id").notNull().primaryKey().defaultRandom().unique(),
   userId: uuid("user_id")
-    .references(() => users.id)
+    .references(() => users.id, { onDelete: "cascade" }) // ✅ Added cascade delete
     .notNull(),
   bookId: uuid("book_id")
     .references(() => books.id)
@@ -46,5 +46,5 @@ export const borrowRecords = pgTable("borrow_records", {
   returnDate: date("return_date"),
   status: borrow_statusEnum("status").default("BORROWED").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  
 });
+
