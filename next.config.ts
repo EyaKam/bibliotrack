@@ -6,11 +6,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "placeholder.co" },
       { protocol: "https", hostname: "m.media-amazon.com" },
       { protocol: "https", hostname: "ik.imagekit.io" },
-      // ADD THIS ONE:
-      {
-        protocol: "https",
-        hostname: "ucarecdn.com", 
-      },
+      { protocol: "https", hostname: "ucarecdn.com"},
     ],
   },  
   typescript : {

@@ -13,6 +13,7 @@ export default async function Page() {
     return <p>You must be logged in</p>;
   }
 
+  //  Récupérer l'utilisateur depuis la DB
   const user = await db
     .select()
     .from(users)
@@ -25,20 +26,30 @@ export default async function Page() {
   }
 
   const borrowedBooks = await getBorrowedBooks(user.id);
+return (
+  <section className="min-h-screen flex justify-center px-4 py-10">
+    <div className="w-full max-w-5xl flex flex-col items-center gap-12">
+      
+      {/* PROFILE CARD */}
+      <div className="w-full flex justify-center">
+        <ProfileCard
+          user={{
+            fullName: user.fullName,
+            email: user.email,
+            universityId: user.universityId,
+            universityCard: user.universityCard,
+            isVerified: user.status === "APPROVED",
+          }}
+        />
+      </div>
 
-  return (
-    <section className="px-8 py-10 space-y-10">
-      <ProfileCard
-        user={{
-          fullName: user.fullName,
-          email: user.email,
-          universityId: user.universityId,
-          universityCard: user.universityCard,
-          isVerified: user.status === "APPROVED",
-        }}
-      />
+      {/* BOOK LIST */}
+      <div className="w-full">
+        <BookList title="Borrowed Books" books={borrowedBooks} />
+      </div>
 
-      <BookList title="Borrowed Books" books={borrowedBooks} />
-    </section>
-  );
+    </div>
+  </section>
+);
+
 }
