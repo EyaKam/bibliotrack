@@ -23,7 +23,7 @@ export default async function BorrowRequests() {
     <div className="bg-white rounded-xl p-4 shadow-sm">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-sm">Borrow Requests</h3>
+        <h3 className="font-semibold text-sm">Borrow Records</h3>
         <Link
           href="/admin/borrow-records" 
           className="text-sm text-blue-600 hover:underline"
