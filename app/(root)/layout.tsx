@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import Header from "@/components/Header";
-import { auth } from "@/auth";
+import { auth, signOut } from "@/auth"; // Added signOut import
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { users } from "@/database/schema";
@@ -11,7 +11,7 @@ const Layout = async ({ children }: { children: ReactNode }) => {
   const session = await auth();
   if (!session || !session.user?.id) redirect("/sign-in");
 
-  // 1. Fetch user and handle the potential 'undefined' state properly
+  // 1. Fetch user from DB
   const userResults = await db
     .select()
     .from(users)
@@ -20,8 +20,8 @@ const Layout = async ({ children }: { children: ReactNode }) => {
 
   const currentUser = userResults[0];
 
-  // 2. Optimized check: If no user found or status is not exactly "APPROVED"
-  // We use "as string" or direct comparison to satisfy TypeScript
+  // 2. Check if user is APPROVED
+  // If status is PENDING or REJECTED, they see this screen
   if (!currentUser || (currentUser.status as string) !== "APPROVED") {
     return (
       <main className="root-container flex min-h-screen items-center justify-center px-5">
@@ -36,7 +36,7 @@ const Layout = async ({ children }: { children: ReactNode }) => {
           
           <p className="text-light-100 mb-6">
             Hi <span className="text-amber-400 font-semibold">{currentUser?.fullName || "Student"}</span>, 
-            your account status is currently <span className="underline italic">{currentUser?.status?.toLowerCase() || "pending"}</span>.
+            your account status is currently <span className="underline italic text-amber-400">{currentUser?.status?.toLowerCase() || "pending"}</span>.
           </p>
 
           <div className="bg-dark-200 p-4 rounded-lg text-sm text-light-200">
@@ -44,21 +44,31 @@ const Layout = async ({ children }: { children: ReactNode }) => {
             <p className="mt-2">You will receive an email notification as soon as your access is granted.</p>
           </div>
           
-          {/* Note: "use server" cannot be used directly in an onClick in a Server Component */}
-          <a href="/sign-in" className="mt-8 text-sm text-light-100 hover:text-white transition-colors">
-            Check again later
-          </a>
+          {/* 3. Proper Sign Out Button using a Server Action */}
+          <form
+            action={async () => {
+              "use server";
+              await signOut();
+            }}
+            className="mt-10"
+          >
+            <button 
+              type="submit" 
+              className="text-sm font-semibold text-light-100 hover:text-white transition-colors underline underline-offset-4"
+            >
+              Sign out and check later
+            </button>
+          </form>
         </div>
       </main>
     );
   }
 
-  // 3. Update activity (only for approved users)
+  // 4. Update activity (only for approved users)
   after(async () => {
     if (!session.user?.id) return;
 
     const today = new Date().toISOString().slice(0, 10);
-    // Use optional chaining for lastactivitydate safety
     if (currentUser.lastactivitydate === today) return;
 
     await db

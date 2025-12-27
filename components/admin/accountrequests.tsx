@@ -1,68 +1,38 @@
 import { db } from "@/database/drizzle";
 import { users } from "@/database/schema";
-import { eq } from "drizzle-orm";
-import Link from "next/dist/client/link";
+import { eq, desc } from "drizzle-orm";
+import Link from "next/link";
+import AccountRequestsTable from "../../app/admin/account-requests/AccountRequestsTable";
 
 export default async function AccountRequests() {
   const requests = await db
     .select({
       id: users.id,
-      name: users.fullName,
+      fullName: users.fullName, // Changed from 'name' to 'fullName' to match schema
       email: users.email,
+      universityId: users.universityId,   // ADDED
+      universityCard: users.universityCard, // ADDED
+      status: users.status,               // ADDED
     })
     .from(users)
     .where(eq(users.status, "PENDING"))
+    .orderBy(desc(users.createdAt))
     .limit(6);
 
   return (
-    <div className="bg-white rounded-xl p-4 shadow-sm">
-      {/* Header */}
+    <div className="bg-white rounded-xl p-4 shadow-sm border border-slate-100">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-sm">Account Requests</h3>
-       <Link
+        <h3 className="font-semibold text-sm text-slate-800">Recent Account Requests</h3>
+        <Link
           href="/admin/account-requests" 
-          className="text-sm text-blue-600 hover:underline"
+          className="text-xs font-bold text-blue-600 hover:underline"
         >
           View all
         </Link>
       </div>
 
-      {/* Grid */}
-      <div className="grid grid-cols-3 gap-4">
-        {requests.map((user) => (
-          <div
-            key={user.id}
-            className="flex flex-col items-center text-center gap-2"
-          >
-            {/* Avatar (initiales) */}
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200">
-              <span className="text-sm font-semibold text-gray-700">
-                {getInitials(user.name)}
-              </span>
-            </div>
-
-            {/* Infos */}
-            <div>
-              <p className="text-sm font-medium leading-tight">
-                {user.name}
-              </p>
-              <p className="text-xs text-gray-400 truncate max-w-[110px]">
-                {user.email}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* This now passes the CORRECT data structure to the table */}
+      <AccountRequestsTable users={requests as any} />
     </div>
   );
-}
-
-/* Utilitaire */
-function getInitials(name: string) {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 }

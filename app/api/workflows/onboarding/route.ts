@@ -5,9 +5,12 @@ import { serve } from "@upstash/workflow/nextjs";
 import { eq } from "drizzle-orm";
 
 type UserState = "non-active" | "active";
+
+// 1. Updated InitialData to include the status from the Admin Action
 type InitialData = {
   email: string;
   fullName: string;
+  status?: "APPROVED" | "REJECTED"; 
 };
 
 const ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
@@ -38,9 +41,22 @@ const getUserState = async (email: string): Promise<UserState> => {
 };
 
 export const { POST } = serve<InitialData>(async (context) => {
-  const { email, fullName } = context.requestPayload;
+  const { email, fullName, status } = context.requestPayload;
 
-  // 1. Account Approved Email (Triggered by Admin)
+  // 2. Handle REJECTION first
+  if (status === "REJECTED") {
+    await context.run("send-rejection-email", async () => {
+      await sendEmail({
+        email,
+        subject: "Update on your Library Account Request",
+        message: `Hi ${fullName}, thank you for your interest in the library. Unfortunately, your account request was not approved at this time. Please ensure your University ID card is clearly visible and try again.`,
+      });
+    });
+    // Stop the workflow here so it doesn't continue to the 3-day sleep/check
+    return;
+  }
+
+  // 3. Handle APPROVAL Notification
   await context.run("account-approved-notification", async () => {
     await sendEmail({
       email,
@@ -49,6 +65,7 @@ export const { POST } = serve<InitialData>(async (context) => {
     });
   });
 
+  // 4. Onboarding Retention Loop (Only for Approved Users)
   // Wait for 3 days before checking their activity for the first time
   await context.sleep("wait-for-3-days", 60 * 60 * 24 * 3);
 
@@ -66,7 +83,6 @@ export const { POST } = serve<InitialData>(async (context) => {
         });
       });
     } else if (state === "active") {
-      // Optional: Send a tip or a "Thank you for using the library"
       await context.run("send-email-active", async () => {
         await sendEmail({
           email,

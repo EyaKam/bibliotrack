@@ -2,217 +2,137 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter 
 } from "@/components/ui/dialog";
+import { Eye, Check, XCircle } from "lucide-react";
+import { approveUser, rejectUser } from "@/lib/admin/actions/User";
 import { toast } from "sonner";
-import { Eye, ArrowUpDown } from "lucide-react";
 
-const AccountRequestsTable = ({ users }: { users: UserProps[] }) => {
-  const [selectedUser, setSelectedUser] = useState<UserProps | null>(null);
-  const [actionType, setActionType] = useState<"approve" | "deny" | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+interface User {
+  id: string;
+  fullName: string;
+  email: string;
+  universityId: number;
+  universityCard: string;
+  status: "PENDING" | "APPROVED" | "REJECTED" | null;
+}
+
+const AccountRequestsTable = ({ users = [] }: { users: User[] }) => {
   const [viewingCard, setViewingCard] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
-  const handleAction = async (user: UserProps, type: "approve" | "deny") => {
-    setSelectedUser(user);
-    setActionType(type);
-  };
+  // Exact endpoint from your project
+  const imageKitEndpoint = "https://ik.imagekit.io/bibliotrackproject";
 
-  const confirmAction = async () => {
-    if (!selectedUser || !actionType || isProcessing) return;
-
-    setIsProcessing(true);
-
+  const handleAction = async (id: string, type: "approve" | "reject") => {
+    setIsProcessing(id);
     try {
-      const response = await fetch(`/api/admin/users/${selectedUser.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          status: actionType === "approve" ? "APPROVED" : "REJECTED",
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update user status");
+      const res = type === "approve" ? await approveUser(id) : await rejectUser(id);
+      
+      if (res.success) {
+        toast.success(`User ${type === "approve" ? "Approved" : "Rejected"} successfully`);
+      } else {
+        toast.error(`Failed to ${type} user. Check your API URL.`);
       }
-
-      toast.success(
-        `User ${actionType === "approve" ? "approved" : "denied"} successfully`
-      );
-      setSelectedUser(null);
-      setActionType(null);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    } catch (err) {
-      console.error("Error updating user:", err);
-      toast.error("Something went wrong. Please try again.");
+    } catch (error) {
+      toast.error("An error occurred during the process.");
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(null);
     }
   };
 
-  const handleViewIdCard = (universityCard: string) => {
-    const imageKitBaseUrl = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT;
-    const fullImageUrl = `${imageKitBaseUrl}${universityCard}`;
-    setViewingCard(fullImageUrl);
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
   return (
-    <div className="p-7 bg-white rounded-2xl shadow-sm border border-slate-100">
-      <div className="flex items-center justify-between mb-8">
-        <h1 className="text-xl font-bold text-slate-900">Account Registration Requests</h1>
-        <Button variant="outline" className="text-xs font-bold text-slate-600 gap-2 border-slate-200">
-          Oldest to Recent <ArrowUpDown size={14} className="text-slate-400" />
-        </Button>
-      </div>
-
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-              <th className="pb-5 font-medium">Name</th>
-              <th className="pb-5 font-medium">Date Joined</th>
-              <th className="pb-5 font-medium">University ID No</th>
-              <th className="pb-5 font-medium">University ID Card</th>
-              <th className="pb-5 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-50">
-            {users.map((user) => (
+    <div className="mt-6 overflow-x-auto border border-slate-100 rounded-xl shadow-sm">
+      <table className="w-full border-collapse bg-white">
+        <thead>
+          <tr className="text-left text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 bg-slate-50/50">
+            <th className="py-4 px-4">Student</th>
+            <th className="py-4 px-4">University ID</th>
+            <th className="py-4 px-4">ID Document</th>
+            <th className="py-4 px-4 text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-50">
+          {users.length > 0 ? (
+            users.map((user) => (
               <tr key={user.id} className="hover:bg-slate-50/30 transition-colors">
-                <td className="py-4">
-                  <div className="flex items-center gap-3">
-                    {/* UPDATED AVATAR STYLE: White circle with blue text */}
-                    <div className="w-10 h-10 rounded-full bg-blue-50  flex items-center justify-center text-blue-600 font-bold text-xs ">
-                      {getInitials(user.fullName)}
-                    </div>
-                    <div>
-                      <div className="font-bold text-slate-900 text-sm">
-                        {user.fullName}
-                      </div>
-                      <div className="text-xs text-slate-400">{user.email}</div>
-                    </div>
-                  </div>
+                <td className="py-4 px-4">
+                  <p className="font-bold text-sm text-slate-900">{user.fullName}</p>
+                  <p className="text-xs text-slate-400">{user.email}</p>
                 </td>
-                <td className="py-4 text-sm font-medium text-slate-600">
-                  {user.createdAt
-                    ? new Date(user.createdAt).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })
-                    : "N/A"}
+                <td className="py-4 px-4 text-sm font-medium text-slate-600">
+                  {user.universityId}
                 </td>
-                <td className="py-4 text-sm font-medium text-slate-600">{user.universityId}</td>
-                <td className="py-4">
+                <td className="py-4 px-4">
                   <button
-                    onClick={() => handleViewIdCard(user.universityCard)}
-                    className="text-blue-500 hover:text-blue-700 text-sm font-bold flex items-center gap-1.5 transition-colors"
+                    onClick={() => setViewingCard(user.universityCard)}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-bold flex items-center gap-1.5 transition-all"
                   >
-                    <Eye className="w-4 h-4" />
-                    View ID Card
+                    <Eye size={16} /> View Card
                   </button>
                 </td>
-                <td className="py-4">
-                  <div className="flex items-center gap-3">
+                <td className="py-4 px-4 text-right">
+                  <div className="flex justify-end gap-2">
                     <Button
                       size="sm"
-                      className="bg-[#02b18d] hover:bg-[#029a7b] text-white text-xs font-bold px-4 py-2 h-9 rounded-lg"
-                      onClick={() => handleAction(user, "approve")}
+                      disabled={isProcessing === user.id}
+                      className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold h-8"
+                      onClick={() => handleAction(user.id, "approve")}
                     >
-                      Approve Account
+                      {isProcessing === user.id ? "..." : <><Check size={14} className="mr-1"/> Approve</>}
                     </Button>
-                    <button
-                      className="w-9 h-9 rounded-full bg-red-50 hover:bg-red-100 flex items-center justify-center text-red-500 transition-colors"
-                      onClick={() => handleAction(user, "deny")}
-                      title="Deny account"
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      disabled={isProcessing === user.id}
+                      className="font-bold h-8"
+                      onClick={() => handleAction(user.id, "reject")}
                     >
-                      <span className="text-xl leading-none">×</span>
-                    </button>
+                      {isProcessing === user.id ? "..." : <><XCircle size={14} className="mr-1"/> Reject</>}
+                    </Button>
                   </div>
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="py-12 text-center text-slate-400 font-medium italic">
+                No pending account requests at this time.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
-      {/* Modals remain the same but with updated button styling */}
+      {/* --- ID CARD MODAL WINDOW --- */}
       <Dialog open={!!viewingCard} onOpenChange={() => setViewingCard(null)}>
-        <DialogContent className="max-w-3xl rounded-2xl">
+        <DialogContent className="max-w-2xl bg-white p-6 rounded-2xl border-none shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold">University ID Card</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-slate-900">University ID Verification</DialogTitle>
           </DialogHeader>
-          <div className="flex justify-center items-center p-4 bg-slate-50 rounded-xl border border-slate-100">
-            <img
-              src={viewingCard || ""}
-              alt="University ID Card"
-              className="max-w-full max-h-[60vh] object-contain rounded-lg shadow-md"
-            />
+          
+          <div className="mt-4 flex justify-center bg-slate-50 p-4 rounded-xl border-2 border-dashed border-slate-200">
+            {viewingCard && (
+              <img
+                src={`${imageKitEndpoint}${viewingCard.startsWith("/") ? viewingCard : `/${viewingCard}`}`}
+                alt="Student ID Card"
+                className="max-w-full h-auto max-h-[450px] rounded-lg shadow-sm object-contain"
+                onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/600x400?text=ID+Card+Not+Found"; }}
+              />
+            )}
           </div>
-          <DialogFooter className="mt-4">
-            <Button className="bg-blue-600 hover:bg-blue-700 font-bold px-8" onClick={() => setViewingCard(null)}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
-      <Dialog
-        open={!!selectedUser}
-        onOpenChange={() => !isProcessing && setSelectedUser(null)}
-      >
-        <DialogContent className="rounded-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold">
-              {actionType === "approve"
-                ? "Approve Account Request"
-                : "Deny Account Request"}
-            </DialogTitle>
-          </DialogHeader>
-          <p className="my-4 text-slate-500 text-sm leading-relaxed">
-            {actionType === "approve"
-              ? "Approve the student's account request and grant access. A confirmation email will be sent upon approval."
-              : "Denying this request will notify the student they're not eligible due to unsuccessful ID card verification."}
-          </p>
-          <DialogFooter className="gap-3 sm:gap-0">
-            <Button
-              variant="outline"
-              onClick={() => setSelectedUser(null)}
-              disabled={isProcessing}
-              className="font-bold border-slate-200"
+          <DialogFooter className="mt-6">
+            <Button 
+              onClick={() => setViewingCard(null)} 
+              className="w-full bg-slate-900 text-white font-bold h-11 hover:bg-slate-800"
             >
-              Cancel
-            </Button>
-            <Button
-              onClick={confirmAction}
-              variant={actionType === "approve" ? "default" : "destructive"}
-              className={`font-bold ${
-                actionType === "approve"
-                  ? "bg-[#02b18d] hover:bg-[#029a7b]"
-                  : ""
-              }`}
-              disabled={isProcessing}
-            >
-              {isProcessing
-                ? "Processing..."
-                : actionType === "approve"
-                  ? "Approve & Send"
-                  : "Deny & Notify"}
+              Close Preview
             </Button>
           </DialogFooter>
         </DialogContent>
