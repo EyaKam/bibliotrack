@@ -5,6 +5,7 @@
 Bibliotrack is a production-grade University Library Management System built with modern web technologies. It implements industry-standard practices for scalability, security, and performance. The system handles everything from multi-media uploads, complex database queries, and advanced error handling to automated workflows with custom notifications.
 
 ---
+NB: for a better user experience, we kindly inform you, our teacher, that it would be neceassry to send us an email to approve your email if you created an account. Furthermore, the .env file is sent with the project zipped you need it. And finally, to run the project from the file zipped after the extraction, you should have node.js, and run the following commands in the terminal:1- cd ./bibliotrack/ (to make sure you are in the right directory) 2- npm install, 3-npm run dev
 
 ## Features
 
